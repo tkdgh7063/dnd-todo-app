@@ -57,21 +57,21 @@ function App() {
       <Wrapper>
         <Boards>
           <Droppable droppableId="one">
-            {(magic) => (
-              <Board ref={magic.innerRef} {...magic.droppableProps}>
+            {(provided) => (
+              <Board ref={provided.innerRef} {...provided.droppableProps}>
                 {toDos.map((toDo, index) => (
                   <Draggable key={toDo} draggableId={toDo} index={index}>
-                    {(magic) => (
+                    {(provided) => (
                       <Card
-                        ref={magic.innerRef}
-                        {...magic.dragHandleProps}
-                        {...magic.draggableProps}>
+                        ref={provided.innerRef}
+                        {...provided.dragHandleProps}
+                        {...provided.draggableProps}>
                         {toDo}
                       </Card>
                     )}
                   </Draggable>
                 ))}
-                {magic.placeholder}
+                {provided.placeholder}
               </Board>
             )}
           </Droppable>
