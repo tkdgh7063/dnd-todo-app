@@ -1,12 +1,10 @@
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from "react-beautiful-dnd";
+import { useEffect, useRef } from "react";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { flushSync } from "react-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { toDoState } from "./atoms";
+import DraggableCard from "./Components/DraggableCard";
 
 const Wrapper = styled.div`
   display: flex;
@@ -32,25 +30,36 @@ const Board = styled.div`
   min-height: 200px;
 `;
 
-const Card = styled.div`
-  background-color: ${(props) => props.theme.cardColor};
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 5px;
-`;
-
 function App() {
   const onDragEnd = ({ draggableId, destination, source }: DropResult) => {
+    // Ignore if dragged outside the list
     if (!destination) return;
 
-    setToDos((oldToDos) => {
-      const copyToDos = [...oldToDos];
-      copyToDos.splice(source.index, 1); // Delete item on source.index
-      copyToDos.splice(destination?.index, 0, draggableId); // Put back the item on the destination.index
+    // Ignore if dropped at the same position
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
 
-      return copyToDos;
+    flushSync(() => {
+      setToDos((oldToDos) => {
+        // 1. Find the item being moved
+        const movingItem = oldToDos.find((item) => item.id === draggableId);
+        if (!movingItem) return oldToDos; // If not found, return previous state
+
+        // 2. Remove the item from its original position
+        const updatedToDos = oldToDos.filter((item) => item.id !== draggableId);
+
+        // 3. Insert the item at the new position
+        updatedToDos.splice(destination.index, 0, movingItem);
+
+        return updatedToDos;
+      });
     });
   };
+
   const [toDos, setToDos] = useRecoilState(toDoState);
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -60,16 +69,7 @@ function App() {
             {(provided) => (
               <Board ref={provided.innerRef} {...provided.droppableProps}>
                 {toDos.map((toDo, index) => (
-                  <Draggable key={toDo} draggableId={toDo} index={index}>
-                    {(provided) => (
-                      <Card
-                        ref={provided.innerRef}
-                        {...provided.dragHandleProps}
-                        {...provided.draggableProps}>
-                        {toDo}
-                      </Card>
-                    )}
-                  </Draggable>
+                  <DraggableCard key={toDo.id} toDo={toDo} index={index} />
                 ))}
                 {provided.placeholder}
               </Board>
