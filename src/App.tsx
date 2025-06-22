@@ -1,15 +1,13 @@
-import { useEffect, useRef } from "react";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { flushSync } from "react-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { toDoState } from "./atoms";
-import DraggableCard from "./Components/DraggableCard";
+import { IToDOState, toDoState } from "./atoms";
+import Board from "./Components/Board";
 
 const Wrapper = styled.div`
   display: flex;
-  max-width: 480px;
-  width: 100%;
+  width: 100vw;
   margin: 0 auto;
   justify-content: center;
   align-items: center;
@@ -19,62 +17,59 @@ const Wrapper = styled.div`
 const Boards = styled.div`
   display: grid;
   width: 100%;
-  grid-template-columns: repeat(1, 1fr);
-`;
-
-const Board = styled.div`
-  background-color: ${(props) => props.theme.boardColor};
-  padding: 20px 10px;
-  padding-top: 30px;
-  border-radius: 5px;
-  min-height: 200px;
+  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
 `;
 
 function App() {
-  const onDragEnd = ({ draggableId, destination, source }: DropResult) => {
+  const onDragEnd = ({ destination, source }: DropResult) => {
     // Ignore if dragged outside the list
     if (!destination) return;
 
-    // Ignore if dropped at the same position
+    // Ignore if dropped at the same position within the same board
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
-    ) {
+    )
       return;
-    }
 
     flushSync(() => {
-      setToDos((oldToDos) => {
-        // 1. Find the item being moved
-        const movingItem = oldToDos.find((item) => item.id === draggableId);
-        if (!movingItem) return oldToDos; // If not found, return previous state
+      setToDos((allBoards) => {
+        // 1. Create a shallow copy of all boards to maintain immutability
+        const copyToDos: IToDOState = {};
+        for (const key in allBoards) {
+          copyToDos[key] = [...allBoards[key]];
+        }
 
-        // 2. Remove the item from its original position
-        const updatedToDos = oldToDos.filter((item) => item.id !== draggableId);
+        // 2. Remove the moved item from the source board at the source index
+        const [movedItem] = copyToDos[source.droppableId].splice(
+          source.index,
+          1
+        );
+        // If no item was found to move, return the current state unchanged
+        if (!movedItem) return allBoards;
 
-        // 3. Insert the item at the new position
-        updatedToDos.splice(destination.index, 0, movingItem);
+        // 3. Insert the moved item into the destination board at the destination index
+        copyToDos[destination.droppableId].splice(
+          destination.index,
+          0,
+          movedItem
+        );
 
-        return updatedToDos;
+        // 4. Return the updated boards state
+        return copyToDos;
       });
     });
   };
 
-  const [toDos, setToDos] = useRecoilState(toDoState);
+  const [category, setToDos] = useRecoilState(toDoState);
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Wrapper>
         <Boards>
-          <Droppable droppableId="one">
-            {(provided) => (
-              <Board ref={provided.innerRef} {...provided.droppableProps}>
-                {toDos.map((toDo, index) => (
-                  <DraggableCard key={toDo.id} toDo={toDo} index={index} />
-                ))}
-                {provided.placeholder}
-              </Board>
-            )}
-          </Droppable>
+          {Object.keys(category).map((boardId) => (
+            <Board boardId={boardId} toDos={category[boardId]} />
+          ))}
         </Boards>
       </Wrapper>
     </DragDropContext>
