@@ -7,18 +7,19 @@ import Board from "./Components/Board";
 
 const Wrapper = styled.div`
   display: flex;
+  height: 100vh;
   width: 100vw;
   margin: 0 auto;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 `;
 
 const Boards = styled.div`
-  display: grid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   gap: 15px;
-  grid-template-columns: repeat(3, 1fr);
 `;
 
 function App() {
@@ -68,7 +69,7 @@ function App() {
       <Wrapper>
         <Boards>
           {Object.keys(category).map((boardId) => (
-            <Board boardId={boardId} toDos={category[boardId]} />
+            <Board key={boardId} boardId={boardId} toDos={category[boardId]} />
           ))}
         </Boards>
       </Wrapper>
