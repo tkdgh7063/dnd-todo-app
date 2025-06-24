@@ -24,7 +24,7 @@ interface DraggableCardProps {
 
 function DraggableCard({ toDo, index }: DraggableCardProps) {
   return (
-    <Draggable key={toDo.id} draggableId={toDo.id} index={index}>
+    <Draggable key={toDo.id} draggableId={toDo.id + ""} index={index}>
       {(provided, snapshot) => (
         <Card
           $isDragging={snapshot.isDragging}

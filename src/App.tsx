@@ -2,7 +2,7 @@ import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { flushSync } from "react-dom";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { IToDOState, toDoState } from "./atoms";
+import { ToDoStateProps, toDoState } from "./atoms";
 import Board from "./Components/Board";
 
 const Wrapper = styled.div`
@@ -37,7 +37,7 @@ function App() {
     flushSync(() => {
       setToDos((allBoards) => {
         // 1. Create a shallow copy of all boards to maintain immutability
-        const copyToDos: IToDOState = {};
+        const copyToDos: ToDoStateProps = {};
         for (const key in allBoards) {
           copyToDos[key] = [...allBoards[key]];
         }
