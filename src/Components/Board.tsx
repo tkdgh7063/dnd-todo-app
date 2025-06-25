@@ -41,8 +41,25 @@ const Area = styled.div<AreaProps>`
 
 const Form = styled.form`
   width: 100%;
-  input {
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+`;
+
+const TodoInput = styled.input`
+  width: 85%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  margin-right: 5px;
+  text-align: center;
+  &:focus {
+    outline: none;
+    border: 2px solid #74b9ff;
+    padding-top: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 2px;
   }
 `;
 
@@ -57,7 +74,6 @@ interface FormProps {
 
 function Board({ toDos, boardId }: BoardProps) {
   const setToDos = useSetRecoilState(toDoState);
-
   const { register, setValue, handleSubmit } = useForm<FormProps>();
   const onValid = ({ toDo }: FormProps) => {
     const newToDo = { id: Date.now(), text: toDo };
@@ -73,7 +89,7 @@ function Board({ toDos, boardId }: BoardProps) {
     <Wrapper>
       <Title>{boardId}</Title>
       <Form onSubmit={handleSubmit(onValid)}>
-        <input
+        <TodoInput
           type="text"
           placeholder={`Add task on ${boardId}`}
           {...register("toDo", { required: true })}
