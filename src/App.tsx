@@ -4,8 +4,9 @@ import { flushSync } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
 import styled from "styled-components";
-import { ToDoStateProps, toDoState } from "./atoms";
+import { toDoState } from "./atoms";
 import Board from "./Components/Board";
+import TrashZone from "./Components/TrashZone";
 
 const Wrapper = styled.div`
   display: flex;
@@ -77,34 +78,36 @@ function App() {
 
     flushSync(() => {
       setToDos((allBoards) => {
-        // 1. Create a shallow copy of all boards to maintain immutability
-        const copyToDos: ToDoStateProps = {};
-        for (const key in allBoards) {
-          copyToDos[key] = [...allBoards[key]];
-        }
+        const sourceBoard = [...allBoards[source.droppableId]];
+        const [movedItem] = sourceBoard.splice(source.index, 1);
 
-        // 2. Remove the moved item from the source board at the source index
-        const [movedItem] = copyToDos[source.droppableId].splice(
-          source.index,
-          1
-        );
-        // If no item was found to move, return the current state unchanged
         if (!movedItem) return allBoards;
 
-        // 3. Insert the moved item into the destination board at the destination index
-        copyToDos[destination.droppableId].splice(
-          destination.index,
-          0,
-          movedItem
-        );
+        if (destination.droppableId === "TRASH") {
+          return {
+            ...allBoards,
+            [source.droppableId]: sourceBoard,
+          };
+        }
 
-        // 4. Return the updated boards state
-        return copyToDos;
+        const destinationBoard =
+          source.droppableId === destination.droppableId
+            ? sourceBoard
+            : [...allBoards[destination.droppableId]];
+
+        destinationBoard.splice(destination.index, 0, movedItem);
+
+        return {
+          ...allBoards,
+          [source.droppableId]: sourceBoard,
+          [destination.droppableId]: destinationBoard,
+        };
       });
     });
   };
 
-  const [category, setToDos] = useRecoilState(toDoState);
+  // const [deletedTaskId, setDeletedTaskId] = useRecoilState(deletedTaskIdState);
+  const [toDos, setToDos] = useRecoilState(toDoState);
   const [error, setError] = useState("");
   const { register, setValue, handleSubmit } = useForm<FormProps>();
   const onValid = ({ board }: FormProps) => {
@@ -134,6 +137,32 @@ function App() {
     }
   }, [error]);
 
+  // // for deleting animation
+  // useEffect(() => {
+  //   if (!deletedTaskId) return;
+
+  //   const timer = setTimeout(() => {
+  //     setToDos((prev) => {
+  //       const newBoards: typeof prev = {};
+
+  //       for (const boardId in prev) {
+  //         const board = prev[boardId];
+  //         if (!board) continue;
+
+  //         newBoards[boardId] = board.filter(
+  //           (item) => item.id !== deletedTaskId
+  //         );
+  //       }
+
+  //       return newBoards;
+  //     });
+
+  //     setDeletedTaskId(null);
+  //   }, 500);
+
+  //   return () => clearTimeout(timer);
+  // }, [deletedTaskId, setToDos, setDeletedTaskId]);
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Wrapper>
@@ -147,10 +176,11 @@ function App() {
           {error && <ErrorText>{error}</ErrorText>}
         </Form>
         <Boards>
-          {Object.keys(category).map((boardId) => (
-            <Board key={boardId} boardId={boardId} toDos={category[boardId]} />
+          {Object.keys(toDos).map((boardId) => (
+            <Board key={boardId} boardId={boardId} toDos={toDos[boardId]} />
           ))}
         </Boards>
+        <TrashZone />
       </Wrapper>
     </DragDropContext>
   );

@@ -1,9 +1,11 @@
+import React from "react";
 import { Draggable } from "react-beautiful-dnd";
 import { styled } from "styled-components";
 import { ToDoItem } from "../atoms";
 
 interface CardProps {
   $isDragging: boolean;
+  $isDeleting: boolean;
 }
 
 const Card = styled.div<CardProps>`
@@ -15,6 +17,7 @@ const Card = styled.div<CardProps>`
   padding: 10px;
   margin-bottom: 5px;
   user-select: none;
+  opacity: ${(props) => (props.$isDeleting ? 0.8 : 1)};
 `;
 
 interface DraggableCardProps {
@@ -25,17 +28,21 @@ interface DraggableCardProps {
 function DraggableCard({ toDo, index }: DraggableCardProps) {
   return (
     <Draggable key={toDo.id} draggableId={toDo.id + ""} index={index}>
-      {(provided, snapshot) => (
-        <Card
-          $isDragging={snapshot.isDragging}
-          ref={provided.innerRef}
-          {...provided.dragHandleProps}
-          {...provided.draggableProps}>
-          {toDo.text}
-        </Card>
-      )}
+      {(provided, snapshot) => {
+        const isDeleting = snapshot.draggingOver === "TRASH";
+        return (
+          <Card
+            $isDragging={snapshot.isDragging}
+            $isDeleting={isDeleting}
+            ref={provided.innerRef}
+            {...provided.dragHandleProps}
+            {...provided.draggableProps}>
+            {toDo.text}
+          </Card>
+        );
+      }}
     </Draggable>
   );
 }
 
-export default DraggableCard;
+export default React.memo(DraggableCard);

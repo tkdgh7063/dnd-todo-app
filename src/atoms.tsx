@@ -31,5 +31,10 @@ export const toDoState = atom<ToDoStateProps>({
     ],
     Done: [],
   },
-  effects_UNSTABLE: [persistAtom],
+  effects: [persistAtom],
+});
+
+export const deletedTaskIdState = atom<number | null>({
+  key: "deletedTaskId",
+  default: null,
 });
