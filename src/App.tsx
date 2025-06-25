@@ -39,13 +39,13 @@ const BoardInput = styled.input<InputProps>`
   border-radius: 5px;
   border: none;
   text-align: center;
-  margin-bottom: ${({ hasError }) => (hasError ? "5px" : "30px")};
+  margin-bottom: ${({ $hasError }) => ($hasError ? "5px" : "30px")};
   &:focus {
     outline: none;
     border: 2px solid #74b9ff;
     padding-top: 8px;
     padding-bottom: 6px;
-    margin-bottom: ${({ hasError }) => (hasError ? "7px" : "32px")};
+    margin-bottom: ${({ $hasError }) => ($hasError ? "7px" : "32px")};
   }
 `;
 
@@ -60,7 +60,7 @@ interface FormProps {
 }
 
 interface InputProps {
-  hasError?: boolean;
+  $hasError?: boolean;
 }
 
 function App() {
@@ -142,7 +142,7 @@ function App() {
             type="text"
             placeholder="Add new board"
             {...register("board", { required: true })}
-            hasError={Boolean(error)}
+            $hasError={Boolean(error)}
           />
           {error && <ErrorText>{error}</ErrorText>}
         </Form>
