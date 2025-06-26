@@ -85,9 +85,9 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
     const newToDo = { id: Date.now(), text: toDo };
     setToDos((allBoards) => {
       const newBoards = [...allBoards];
-      newBoards[+boardId] = {
-        ...newBoards[+boardId],
-        items: [...newBoards[+boardId].items, newToDo],
+      newBoards[index] = {
+        ...newBoards[index],
+        items: [...newBoards[index].items, newToDo],
       };
       return newBoards;
     });
