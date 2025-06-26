@@ -18,42 +18,55 @@ const Wrapper = styled.div`
   align-items: center;
 `;
 
-const Boards = styled.div`
+const Header = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  gap: 15px;
+  height: 100px;
+  margin-bottom: 20px;
+  position: relative;
 `;
 
 const Form = styled.form`
-  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 70px;
 `;
 
 const BoardInput = styled.input<InputProps>`
-  width: 25%;
+  width: 20%;
   padding: 10px;
   border-radius: 5px;
   border: none;
   text-align: center;
-  margin-bottom: ${({ $hasError }) => ($hasError ? "5px" : "30px")};
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   &:focus {
     outline: none;
     border: 2px solid #74b9ff;
-    padding-top: 8px;
-    padding-bottom: 6px;
-    margin-bottom: ${({ $hasError }) => ($hasError ? "7px" : "32px")};
   }
 `;
 
 const ErrorText = styled.p`
   color: red;
   font-weight: 600;
-  margin-bottom: 20px;
+  height: 20px;
+  position: absolute;
+  bottom: 5px;
+`;
+
+const Boards = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
 `;
 
 interface FormProps {
@@ -181,15 +194,18 @@ function App() {
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Wrapper>
-        <Form onSubmit={handleSubmit(onValid)}>
-          <BoardInput
-            type="text"
-            placeholder="Add new board"
-            {...register("boardName", { required: true })}
-            $hasError={Boolean(error)}
-          />
-          {error && <ErrorText>{error}</ErrorText>}
-        </Form>
+        <Header>
+          <Form onSubmit={handleSubmit(onValid)}>
+            <BoardInput
+              type="text"
+              placeholder="Add new board"
+              {...register("boardName", { required: true })}
+              $hasError={Boolean(error)}
+            />
+            {error && <ErrorText>{error}</ErrorText>}
+          </Form>
+          <TrashZone />
+        </Header>
         <Boards>
           {Object.keys(toDos).map((boardId) => (
             <Board
@@ -200,7 +216,6 @@ function App() {
             />
           ))}
         </Boards>
-        <TrashZone />
       </Wrapper>
     </DragDropContext>
   );
