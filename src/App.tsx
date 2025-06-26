@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { flushSync } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useRecoilState } from "recoil";
@@ -26,6 +26,10 @@ const Header = styled.div`
   height: 100px;
   margin-bottom: 20px;
   position: relative;
+`;
+
+const Body = styled.div`
+  width: 100%;
 `;
 
 const Form = styled.form`
@@ -78,7 +82,7 @@ interface InputProps {
 }
 
 function App() {
-  const onDragEnd = ({ destination, source }: DropResult) => {
+  const onDragEnd = ({ destination, source, type }: DropResult) => {
     // Ignore if dragged outside the list
     if (!destination) return;
 
@@ -89,43 +93,79 @@ function App() {
     )
       return;
 
-    // Card is Dragged
-    flushSync(() => {
-      setToDos((allBoards) => {
-        const sourceBoard = [...allBoards[+source.droppableId].items];
-        const [movedItem] = sourceBoard.splice(source.index, 1);
+    // Board is Dragged
+    if (type === "BOARD") {
+      flushSync(() => {
+        setToDos((allBoards) => {
+          const newBoards = [...allBoards];
+          const [movedBoard] = newBoards.splice(source.index, 1);
 
-        if (!movedItem) return allBoards;
+          if (destination.droppableId === "TRASH") {
+            return newBoards;
+          }
 
-        const newBoards = [...allBoards];
-
-        // Card is dragged into TrashZone
-        if (destination.droppableId === "TRASH") {
-          newBoards[+source.droppableId] = {
-            ...newBoards[+source.droppableId],
-            items: sourceBoard,
-          };
+          newBoards.splice(destination.index, 0, movedBoard);
           return newBoards;
-        }
-
-        const destinationBoard =
-          source.droppableId === destination.droppableId
-            ? sourceBoard
-            : [...allBoards[+destination.droppableId].items];
-
-        destinationBoard.splice(destination.index, 0, movedItem);
-
-        newBoards[+source.droppableId] = {
-          ...newBoards[+source.droppableId],
-          items: sourceBoard,
-        };
-        newBoards[+destination.droppableId] = {
-          ...newBoards[+destination.droppableId],
-          items: destinationBoard,
-        };
-        return newBoards;
+        });
       });
-    });
+    }
+
+    // Card is Dragged
+    else {
+      flushSync(() => {
+        setToDos((allBoards) => {
+          // droppableId가 숫자 인덱스가 아니라 고유 ID일 때 인덱스 찾기
+          const sourceBoardIndex = allBoards.findIndex(
+            (board) => board.id === +source.droppableId
+          );
+          const destinationBoardIndex = allBoards.findIndex(
+            (board) => board.id === +destination.droppableId
+          );
+
+          if (sourceBoardIndex === -1 || destinationBoardIndex === -1) {
+            return allBoards;
+          }
+
+          const sourceBoard = [...allBoards[sourceBoardIndex].items];
+          const [movedItem] = sourceBoard.splice(source.index, 1);
+          if (!movedItem) return allBoards;
+
+          const newBoards = [...allBoards];
+
+          if (destination.droppableId === "TRASH") {
+            newBoards[sourceBoardIndex] = {
+              ...newBoards[sourceBoardIndex],
+              items: sourceBoard,
+            };
+            return newBoards;
+          }
+
+          const destinationItems =
+            source.droppableId === destination.droppableId
+              ? sourceBoard
+              : [...allBoards[destinationBoardIndex].items];
+
+          destinationItems.splice(destination.index, 0, movedItem);
+
+          newBoards[sourceBoardIndex] = {
+            ...newBoards[sourceBoardIndex],
+            items:
+              source.droppableId === destination.droppableId
+                ? destinationItems
+                : sourceBoard,
+          };
+
+          if (source.droppableId !== destination.droppableId) {
+            newBoards[destinationBoardIndex] = {
+              ...newBoards[destinationBoardIndex],
+              items: destinationItems,
+            };
+          }
+
+          return newBoards;
+        });
+      });
+    }
   };
 
   // const [deletedTaskId, setDeletedTaskId] = useRecoilState(deletedTaskIdState);
@@ -206,16 +246,27 @@ function App() {
           </Form>
           <TrashZone />
         </Header>
-        <Boards>
-          {Object.keys(toDos).map((boardId) => (
-            <Board
-              key={boardId}
-              boardId={boardId}
-              boardName={toDos[+boardId].boardName}
-              toDos={toDos[+boardId].items}
-            />
-          ))}
-        </Boards>
+        <Body>
+          <Droppable
+            droppableId="board-container"
+            type="BOARD"
+            direction="horizontal">
+            {(provided, snapshot) => (
+              <Boards ref={provided.innerRef} {...provided.droppableProps}>
+                {toDos.map((board, index) => (
+                  <Board
+                    key={board.id}
+                    boardId={board.id + ""}
+                    boardName={board.boardName}
+                    toDos={board.items}
+                    index={index}
+                  />
+                ))}
+                {provided.placeholder}
+              </Boards>
+            )}
+          </Droppable>
+        </Body>
       </Wrapper>
     </DragDropContext>
   );
