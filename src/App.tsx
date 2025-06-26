@@ -57,7 +57,7 @@ const ErrorText = styled.p`
 `;
 
 interface FormProps {
-  board: string;
+  boardName: string;
 }
 
 interface InputProps {
@@ -78,30 +78,36 @@ function App() {
 
     flushSync(() => {
       setToDos((allBoards) => {
-        const sourceBoard = [...allBoards[source.droppableId]];
+        const sourceBoard = [...allBoards[+source.droppableId].items];
         const [movedItem] = sourceBoard.splice(source.index, 1);
 
         if (!movedItem) return allBoards;
 
+        const newBoards = [...allBoards];
         if (destination.droppableId === "TRASH") {
-          return {
-            ...allBoards,
-            [source.droppableId]: sourceBoard,
+          newBoards[+source.droppableId] = {
+            ...newBoards[+source.droppableId],
+            items: sourceBoard,
           };
+          return newBoards;
         }
 
         const destinationBoard =
           source.droppableId === destination.droppableId
             ? sourceBoard
-            : [...allBoards[destination.droppableId]];
+            : [...allBoards[+destination.droppableId].items];
 
         destinationBoard.splice(destination.index, 0, movedItem);
 
-        return {
-          ...allBoards,
-          [source.droppableId]: sourceBoard,
-          [destination.droppableId]: destinationBoard,
+        newBoards[+source.droppableId] = {
+          ...newBoards[+source.droppableId],
+          items: sourceBoard,
         };
+        newBoards[+destination.droppableId] = {
+          ...newBoards[+destination.droppableId],
+          items: destinationBoard,
+        };
+        return newBoards;
       });
     });
   };
@@ -110,21 +116,27 @@ function App() {
   const [toDos, setToDos] = useRecoilState(toDoState);
   const [error, setError] = useState("");
   const { register, setValue, handleSubmit } = useForm<FormProps>();
-  const onValid = ({ board }: FormProps) => {
+  const onValid = ({ boardName }: FormProps) => {
     setToDos((allBoards) => {
-      if (allBoards.hasOwnProperty(board)) {
+      if (
+        allBoards.some(
+          (board) => board.boardName.toLowerCase() === boardName.toLowerCase()
+        )
+      ) {
         setError("Board already exists");
         return allBoards;
       }
 
       setError("");
-      const newBoard = { id: Date.now(), text: board };
-      return {
-        ...allBoards,
-        [newBoard.text]: [],
+      const newBoard = {
+        id: Date.now(),
+        boardName:
+          boardName.charAt(0).toUpperCase() + boardName.slice(1).toLowerCase(),
+        items: [],
       };
+      return [...allBoards, newBoard];
     });
-    setValue("board", "");
+    setValue("boardName", "");
   };
 
   useEffect(() => {
@@ -170,14 +182,19 @@ function App() {
           <BoardInput
             type="text"
             placeholder="Add new board"
-            {...register("board", { required: true })}
+            {...register("boardName", { required: true })}
             $hasError={Boolean(error)}
           />
           {error && <ErrorText>{error}</ErrorText>}
         </Form>
         <Boards>
           {Object.keys(toDos).map((boardId) => (
-            <Board key={boardId} boardId={boardId} toDos={toDos[boardId]} />
+            <Board
+              key={boardId}
+              boardId={boardId}
+              boardName={toDos[+boardId].boardName}
+              toDos={toDos[+boardId].items}
+            />
           ))}
         </Boards>
         <TrashZone />

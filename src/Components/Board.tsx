@@ -66,32 +66,35 @@ const TodoInput = styled.input`
 interface BoardProps {
   toDos: ToDoItem[];
   boardId: string;
+  boardName: string;
 }
 
 interface FormProps {
   toDo: string;
 }
 
-function Board({ toDos, boardId }: BoardProps) {
+function Board({ toDos, boardId, boardName }: BoardProps) {
   const setToDos = useSetRecoilState(toDoState);
   const { register, setValue, handleSubmit } = useForm<FormProps>();
   const onValid = ({ toDo }: FormProps) => {
     const newToDo = { id: Date.now(), text: toDo };
     setToDos((allBoards) => {
-      return {
-        ...allBoards,
-        [boardId]: [...allBoards[boardId], newToDo],
+      const newBoards = [...allBoards];
+      newBoards[+boardId] = {
+        ...newBoards[+boardId],
+        items: [...newBoards[+boardId].items, newToDo],
       };
+      return newBoards;
     });
     setValue("toDo", "");
   };
   return (
     <Wrapper>
-      <Title>{boardId}</Title>
+      <Title>{boardName}</Title>
       <Form onSubmit={handleSubmit(onValid)}>
         <TodoInput
           type="text"
-          placeholder={`Add task on ${boardId}`}
+          placeholder={`Add task on ${boardName}`}
           {...register("toDo", { required: true })}
         />
       </Form>

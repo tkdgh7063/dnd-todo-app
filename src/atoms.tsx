@@ -6,8 +6,10 @@ export interface ToDoItem {
   text: string;
 }
 
-export interface ToDoStateProps {
-  [key: string]: ToDoItem[];
+export interface KanbanColumn {
+  id: number;
+  boardName: string;
+  items: ToDoItem[];
 }
 
 const { persistAtom } = recoilPersist({
@@ -15,22 +17,30 @@ const { persistAtom } = recoilPersist({
   storage: localStorage,
 });
 
-export const toDoState = atom<ToDoStateProps>({
+export const toDoState = atom<KanbanColumn[]>({
   key: "todo",
-  default: {
-    "To do": [
-      { id: 1, text: "a" },
-      { id: 2, text: "b" },
-      { id: 3, text: "c" },
-      { id: 6, text: "f" },
-      { id: 7, text: "g" },
-    ],
-    Doing: [
-      { id: 4, text: "d" },
-      { id: 5, text: "e" },
-    ],
-    Done: [],
-  },
+  default: [
+    {
+      id: 0,
+      boardName: "To do",
+      items: [
+        { id: 3, text: "a" },
+        { id: 4, text: "b" },
+        { id: 5, text: "c" },
+        { id: 8, text: "f" },
+        { id: 9, text: "g" },
+      ],
+    },
+    {
+      id: 1,
+      boardName: "Doing",
+      items: [
+        { id: 6, text: "d" },
+        { id: 7, text: "e" },
+      ],
+    },
+    { id: 2, boardName: "Done", items: [] },
+  ],
   effects: [persistAtom],
 });
 
