@@ -114,41 +114,50 @@ function App() {
     else {
       flushSync(() => {
         setToDos((allBoards) => {
-          const sourceBoard = [...allBoards[+source.droppableId].items];
-          const [movedItem] = sourceBoard.splice(source.index, 1);
+          // droppableId가 숫자 인덱스가 아니라 고유 ID일 때 인덱스 찾기
+          const sourceBoardIndex = allBoards.findIndex(
+            (board) => board.id === +source.droppableId
+          );
+          const destinationBoardIndex = allBoards.findIndex(
+            (board) => board.id === +destination.droppableId
+          );
 
+          if (sourceBoardIndex === -1 || destinationBoardIndex === -1) {
+            return allBoards;
+          }
+
+          const sourceBoard = [...allBoards[sourceBoardIndex].items];
+          const [movedItem] = sourceBoard.splice(source.index, 1);
           if (!movedItem) return allBoards;
 
           const newBoards = [...allBoards];
 
-          // 삭제
           if (destination.droppableId === "TRASH") {
-            newBoards[+source.droppableId] = {
-              ...newBoards[+source.droppableId],
+            newBoards[sourceBoardIndex] = {
+              ...newBoards[sourceBoardIndex],
               items: sourceBoard,
             };
             return newBoards;
           }
 
-          // 이동 대상 보드 항목 복사
           const destinationItems =
             source.droppableId === destination.droppableId
               ? sourceBoard
-              : [...allBoards[+destination.droppableId].items];
+              : [...allBoards[destinationBoardIndex].items];
 
           destinationItems.splice(destination.index, 0, movedItem);
 
-          // 보드 갱신
-          newBoards[+source.droppableId] = {
-            ...newBoards[+source.droppableId],
+          newBoards[sourceBoardIndex] = {
+            ...newBoards[sourceBoardIndex],
             items:
               source.droppableId === destination.droppableId
                 ? destinationItems
                 : sourceBoard,
           };
+
           if (source.droppableId !== destination.droppableId) {
-            newBoards[+destination.droppableId] = {
-              ...newBoards[+destination.droppableId],
+            newBoards[destinationBoardIndex] = {
+              ...newBoards[destinationBoardIndex],
               items: destinationItems,
             };
           }
