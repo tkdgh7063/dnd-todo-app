@@ -20,6 +20,7 @@ const Title = styled.h2`
   font-weight: 600;
   margin-bottom: 10px;
   font-size: 18px;
+  user-select: none;
 `;
 
 interface AreaProps {
@@ -60,6 +61,9 @@ const TodoInput = styled.input`
     padding-top: 8px;
     padding-bottom: 6px;
     margin-bottom: 2px;
+  }
+  &::placeholder {
+    user-select: none;
   }
 `;
 

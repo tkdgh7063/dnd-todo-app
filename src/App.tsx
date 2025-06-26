@@ -76,6 +76,7 @@ function App() {
     )
       return;
 
+    // Card is Dragged
     flushSync(() => {
       setToDos((allBoards) => {
         const sourceBoard = [...allBoards[+source.droppableId].items];
@@ -84,6 +85,8 @@ function App() {
         if (!movedItem) return allBoards;
 
         const newBoards = [...allBoards];
+
+        // Card is dragged into TrashZone
         if (destination.droppableId === "TRASH") {
           newBoards[+source.droppableId] = {
             ...newBoards[+source.droppableId],
@@ -143,7 +146,7 @@ function App() {
     if (error) {
       const timer = setTimeout(() => {
         setError("");
-      }, 5000);
+      }, 3 * 1000);
 
       return () => clearTimeout(timer);
     }

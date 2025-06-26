@@ -24,3 +24,6 @@ yarn-error.log*
 
 # AI
 .qodo/
+
+# todo memos
+/src/.memo.tsx
