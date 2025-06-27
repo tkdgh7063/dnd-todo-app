@@ -1,3 +1,4 @@
+import React from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useForm } from "react-hook-form";
 import { useSetRecoilState } from "recoil";
@@ -5,14 +6,16 @@ import { styled } from "styled-components";
 import { ToDoItem, toDoState } from "../atoms";
 import DraggableCard from "./DraggableCard";
 
-const Wrapper = styled.div`
-  background-color: ${(props) => props.theme.boardColor};
+const Wrapper = styled.div<WrapperProps>`
+  background-color: ${(props) =>
+    props.$isDragging ? "#74b9ff" : props.theme.boardColor};
   border-radius: 5px;
   min-height: 300px;
   width: 300px;
   padding-top: 10px;
   display: flex;
   flex-direction: column;
+  //transition: background-color 0.3s ease-in-out;
 `;
 
 const Title = styled.h2`
@@ -26,6 +29,7 @@ const Title = styled.h2`
 interface AreaProps {
   $isDraggingOver: boolean;
   $isdraggingFromThisWith: boolean;
+  $isDragging: boolean;
 }
 
 const Area = styled.div<AreaProps>`
@@ -36,7 +40,8 @@ const Area = styled.div<AreaProps>`
       : props.$isdraggingFromThisWith
       ? "transparent"
       : "#dfe6e9"};
-  transition: background-color 0.3s ease-in-out;
+  transition: ${(props) =>
+    props.$isDragging ? "none" : "background-color 0.3s ease-in-out"};
   padding: 20px;
 `;
 
@@ -78,6 +83,10 @@ interface FormProps {
   toDo: string;
 }
 
+interface WrapperProps {
+  $isDragging: boolean;
+}
+
 function Board({ toDos, boardId, boardName, index }: BoardProps) {
   const setToDos = useSetRecoilState(toDoState);
   const { register, setValue, handleSubmit } = useForm<FormProps>();
@@ -95,34 +104,43 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
   };
   return (
     <Draggable draggableId={boardId} index={index}>
-      {(provided, snapshot) => (
-        <Wrapper ref={provided.innerRef} {...provided.draggableProps}>
-          <Title {...provided.dragHandleProps}>{boardName}</Title>
-          <Form onSubmit={handleSubmit(onValid)}>
-            <TodoInput
-              type="text"
-              placeholder={`Add task on ${boardName}`}
-              {...register("toDo", { required: true })}
-            />
-          </Form>
-          <Droppable droppableId={boardId} type="CARD">
-            {(provided, snapshot) => (
-              <Area
-                $isDraggingOver={snapshot.isDraggingOver}
-                $isdraggingFromThisWith={Boolean(snapshot.draggingFromThisWith)}
-                ref={provided.innerRef}
-                {...provided.droppableProps}>
-                {toDos.map((toDo, index) => (
-                  <DraggableCard key={toDo.id} toDo={toDo} index={index} />
-                ))}
-                {provided.placeholder}
-              </Area>
-            )}
-          </Droppable>
-        </Wrapper>
-      )}
+      {(provided, snapshot) => {
+        const isBoardDragging = snapshot.isDragging;
+        return (
+          <Wrapper
+            ref={provided.innerRef}
+            $isDragging={isBoardDragging}
+            {...provided.draggableProps}>
+            <Title {...provided.dragHandleProps}>{boardName}</Title>
+            <Form onSubmit={handleSubmit(onValid)}>
+              <TodoInput
+                type="text"
+                placeholder={`Add task on ${boardName}`}
+                {...register("toDo", { required: true })}
+              />
+            </Form>
+            <Droppable droppableId={boardId} type="CARD">
+              {(provided, snapshot) => (
+                <Area
+                  $isDraggingOver={snapshot.isDraggingOver}
+                  $isdraggingFromThisWith={Boolean(
+                    snapshot.draggingFromThisWith
+                  )}
+                  $isDragging={isBoardDragging}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}>
+                  {toDos.map((toDo, index) => (
+                    <DraggableCard key={toDo.id} toDo={toDo} index={index} />
+                  ))}
+                  {provided.placeholder}
+                </Area>
+              )}
+            </Droppable>
+          </Wrapper>
+        );
+      }}
     </Draggable>
   );
 }
 
-export default Board;
+export default React.memo(Board);
