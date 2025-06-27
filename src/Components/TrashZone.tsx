@@ -1,5 +1,12 @@
+import React, { forwardRef } from "react";
 import { Droppable } from "react-beautiful-dnd";
 import { styled } from "styled-components";
+
+const Wrapper = styled.div`
+  position: relative;
+  height: 50px;
+  width: 50px;
+`;
 
 const Trash = styled.div<TrashZoneProps>`
   height: 50px;
@@ -18,24 +25,40 @@ const Trash = styled.div<TrashZoneProps>`
   position: absolute;
   right: 20px;
   bottom: 0px;
+  z-index: ${(props) => props.$zIndex};
 `;
 
 interface TrashZoneProps {
   $isDraggingOver: boolean;
+  $zIndex: number;
 }
 
 function TrashZone() {
   return (
-    <Droppable droppableId="TRASH">
-      {(provided, snapshot) => (
-        <Trash
-          ref={provided.innerRef}
-          $isDraggingOver={snapshot.isDraggingOver}
-          {...provided.droppableProps}>
-          <span>🗑️</span>
-        </Trash>
-      )}
-    </Droppable>
+    <Wrapper>
+      <Droppable droppableId="TRASH-CARD" type="CARD">
+        {(provided, snapshot) => (
+          <Trash
+            ref={provided.innerRef}
+            $isDraggingOver={snapshot.isDraggingOver}
+            $zIndex={snapshot.isDraggingOver ? 3 : 1}
+            {...provided.droppableProps}>
+            <span>🗑️</span>
+          </Trash>
+        )}
+      </Droppable>
+      <Droppable droppableId="TRASH-BOARD" type="BOARD">
+        {(provided, snapshot) => (
+          <Trash
+            ref={provided.innerRef}
+            $isDraggingOver={snapshot.isDraggingOver}
+            $zIndex={snapshot.isDraggingOver ? 4 : 2}
+            {...provided.droppableProps}>
+            <span>🗑️</span>
+          </Trash>
+        )}
+      </Droppable>
+    </Wrapper>
   );
 }
 

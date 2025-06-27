@@ -100,7 +100,7 @@ function App() {
           const newBoards = [...allBoards];
           const [movedBoard] = newBoards.splice(source.index, 1);
 
-          if (destination.droppableId === "TRASH") {
+          if (destination.droppableId.startsWith("TRASH")) {
             return newBoards;
           }
 
@@ -111,10 +111,29 @@ function App() {
     }
 
     // Card is Dragged
-    else {
+    else if (type === "CARD") {
       flushSync(() => {
         setToDos((allBoards) => {
-          // droppableId가 숫자 인덱스가 아니라 고유 ID일 때 인덱스 찾기
+          // 1. 삭제인 경우 먼저 분기
+          if (destination.droppableId.startsWith("TRASH")) {
+            const sourceBoardIndex = allBoards.findIndex(
+              (board) => board.id === +source.droppableId
+            );
+            if (sourceBoardIndex === -1) return allBoards;
+
+            const sourceItems = [...allBoards[sourceBoardIndex].items];
+            sourceItems.splice(source.index, 1); // 삭제
+
+            const newBoards = [...allBoards];
+            newBoards[sourceBoardIndex] = {
+              ...newBoards[sourceBoardIndex],
+              items: sourceItems,
+            };
+
+            return newBoards;
+          }
+
+          // 2. 일반 이동인 경우
           const sourceBoardIndex = allBoards.findIndex(
             (board) => board.id === +source.droppableId
           );
@@ -126,33 +145,25 @@ function App() {
             return allBoards;
           }
 
-          const sourceBoard = [...allBoards[sourceBoardIndex].items];
-          const [movedItem] = sourceBoard.splice(source.index, 1);
+          const sourceItems = [...allBoards[sourceBoardIndex].items];
+          const [movedItem] = sourceItems.splice(source.index, 1);
           if (!movedItem) return allBoards;
-
-          const newBoards = [...allBoards];
-
-          if (destination.droppableId === "TRASH") {
-            newBoards[sourceBoardIndex] = {
-              ...newBoards[sourceBoardIndex],
-              items: sourceBoard,
-            };
-            return newBoards;
-          }
 
           const destinationItems =
             source.droppableId === destination.droppableId
-              ? sourceBoard
+              ? sourceItems
               : [...allBoards[destinationBoardIndex].items];
 
           destinationItems.splice(destination.index, 0, movedItem);
+
+          const newBoards = [...allBoards];
 
           newBoards[sourceBoardIndex] = {
             ...newBoards[sourceBoardIndex],
             items:
               source.droppableId === destination.droppableId
                 ? destinationItems
-                : sourceBoard,
+                : sourceItems,
           };
 
           if (source.droppableId !== destination.droppableId) {

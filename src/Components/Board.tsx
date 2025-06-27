@@ -105,7 +105,7 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
               {...register("toDo", { required: true })}
             />
           </Form>
-          <Droppable droppableId={boardId}>
+          <Droppable droppableId={boardId} type="CARD">
             {(provided, snapshot) => (
               <Area
                 $isDraggingOver={snapshot.isDraggingOver}
