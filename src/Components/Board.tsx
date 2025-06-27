@@ -1,4 +1,3 @@
-import React from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useForm } from "react-hook-form";
 import { useSetRecoilState } from "recoil";
@@ -7,8 +6,7 @@ import { ToDoItem, toDoState } from "../atoms";
 import DraggableCard from "./DraggableCard";
 
 const Wrapper = styled.div<WrapperProps>`
-  background-color: ${(props) =>
-    props.$isDragging ? "#74b9ff" : props.theme.boardColor};
+  background-color: ${(props) => (props.$isDragging ? "#74b9ff" : "#DFE6E9")};
   border-radius: 5px;
   min-height: 300px;
   width: 300px;
@@ -17,9 +15,10 @@ const Wrapper = styled.div<WrapperProps>`
   flex-direction: column;
   //transition: background-color 0.3s ease-in-out;
   position: relative;
+  opacity: ${(props) => (props.$isDeleting ? 0.8 : 1)};
 `;
 
-const Title = styled.h2`
+const Title = styled.h2<TitleProps>`
   text-align: center;
   font-weight: 600;
   margin-bottom: 10px;
@@ -39,7 +38,7 @@ const EditButton = styled.button`
 
 interface AreaProps {
   $isDraggingOver: boolean;
-  $isdraggingFromThisWith: boolean;
+  $isDraggingFromThisWith: boolean;
   $isDragging: boolean;
 }
 
@@ -48,7 +47,7 @@ const Area = styled.div<AreaProps>`
   background-color: ${(props) =>
     props.$isDraggingOver
       ? "#b2bec3"
-      : props.$isdraggingFromThisWith
+      : props.$isDraggingFromThisWith
       ? "transparent"
       : "#dfe6e9"};
   transition: ${(props) =>
@@ -96,6 +95,11 @@ interface FormProps {
 
 interface WrapperProps {
   $isDragging: boolean;
+  $isDeleting: boolean;
+}
+
+interface TitleProps {
+  $isDeleting: boolean;
 }
 
 function Board({ toDos, boardId, boardName, index }: BoardProps) {
@@ -121,12 +125,16 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
     <Draggable draggableId={boardId} index={index}>
       {(provided, snapshot) => {
         const isBoardDragging = snapshot.isDragging;
+        const isDeleting = snapshot.draggingOver === "TRASH-BOARD";
         return (
           <Wrapper
-            ref={provided.innerRef}
             $isDragging={isBoardDragging}
+            $isDeleting={isDeleting}
+            ref={provided.innerRef}
             {...provided.draggableProps}>
-            <Title {...provided.dragHandleProps}>{boardName}</Title>
+            <Title $isDeleting={isDeleting} {...provided.dragHandleProps}>
+              {boardName}
+            </Title>
             <EditButton onClick={onClick}>
               <span>✏️</span>
             </EditButton>
@@ -141,7 +149,7 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
               {(provided, snapshot) => (
                 <Area
                   $isDraggingOver={snapshot.isDraggingOver}
-                  $isdraggingFromThisWith={Boolean(
+                  $isDraggingFromThisWith={Boolean(
                     snapshot.draggingFromThisWith
                   )}
                   $isDragging={isBoardDragging}
@@ -166,4 +174,4 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
   );
 }
 
-export default React.memo(Board);
+export default Board;

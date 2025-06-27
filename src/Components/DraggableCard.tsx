@@ -125,7 +125,9 @@ function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
   return (
     <Draggable key={toDo.id} draggableId={toDo.id + ""} index={index}>
       {(provided, snapshot) => {
-        const isDeleting = snapshot.draggingOver === "TRASH";
+        const isDeleting = snapshot.draggingOver?.startsWith("TRASH")
+          ? true
+          : false;
         return (
           <Wrapper>
             <Card

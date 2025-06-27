@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { flushSync } from "react-dom";
@@ -67,12 +66,14 @@ const ErrorText = styled.p`
   left: 44%;
 `;
 
-const Boards = styled.div`
+const Boards = styled.div<BoardsProps>`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
   gap: 15px;
+  width: 100%;
+  min-height: 300px;
+  background-color: "#3F8CF2";
 `;
 
 interface FormProps {
@@ -81,6 +82,11 @@ interface FormProps {
 
 interface InputProps {
   $hasError?: boolean;
+}
+
+interface BoardsProps {
+  $isDraggingOver: boolean;
+  $isDraggingFromThisWith: boolean;
 }
 
 function App() {
@@ -102,7 +108,7 @@ function App() {
           const newBoards = [...allBoards];
           const [movedBoard] = newBoards.splice(source.index, 1);
 
-          if (destination.droppableId.startsWith("TRASH")) {
+          if (destination.droppableId === "TRASH-BOARD") {
             return newBoards;
           }
 
@@ -117,7 +123,7 @@ function App() {
       flushSync(() => {
         setToDos((allBoards) => {
           // 1. 삭제인 경우 먼저 분기
-          if (destination.droppableId.startsWith("TRASH")) {
+          if (destination.droppableId === "TRASH-CARD") {
             const sourceBoardIndex = allBoards.findIndex(
               (board) => board.id === +source.droppableId
             );
@@ -212,7 +218,7 @@ function App() {
     if (error) {
       const timer = setTimeout(() => {
         setError("");
-      }, 100 * 1000);
+      }, 3 * 1000);
 
       return () => clearTimeout(timer);
     }
@@ -265,7 +271,11 @@ function App() {
             type="BOARD"
             direction="horizontal">
             {(provided, snapshot) => (
-              <Boards ref={provided.innerRef} {...provided.droppableProps}>
+              <Boards
+                $isDraggingOver={snapshot.isDraggingOver}
+                $isDraggingFromThisWith={Boolean(snapshot.draggingFromThisWith)}
+                ref={provided.innerRef}
+                {...provided.droppableProps}>
                 {toDos.map((board, index) => (
                   <Board
                     key={board.id}
@@ -285,4 +295,4 @@ function App() {
   );
 }
 
-export default React.memo(App);
+export default App;

@@ -5,8 +5,8 @@ const Wrapper = styled.div`
   height: 50px;
   width: 50px;
   position: absolute;
-  top: 65%;
-  right: 0;
+  top: 40%;
+  right: 5%;
 `;
 
 const Trash = styled.div<TrashZoneProps>`
@@ -46,7 +46,7 @@ function TrashZone() {
           </Trash>
         )}
       </Droppable>
-      <Droppable droppableId="TRASH-BOARD" type="BOARD">
+      <Droppable droppableId="TRASH-BOARD" type="BOARD" direction="horizontal">
         {(provided, snapshot) => (
           <Trash
             ref={provided.innerRef}
