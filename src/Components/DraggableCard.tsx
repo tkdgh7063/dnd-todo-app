@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
-import { flushSync } from "react-dom";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { styled } from "styled-components";
 import { ToDoItem, toDoState } from "../atoms";
 
@@ -116,6 +115,7 @@ function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
       });
     }
   };
+
   useEffect(() => {
     if (isEditing) {
       inputRef.current?.focus();
