@@ -16,6 +16,7 @@ const Wrapper = styled.div<WrapperProps>`
   display: flex;
   flex-direction: column;
   //transition: background-color 0.3s ease-in-out;
+  position: relative;
 `;
 
 const Title = styled.h2`
@@ -24,6 +25,16 @@ const Title = styled.h2`
   margin-bottom: 10px;
   font-size: 18px;
   user-select: none;
+`;
+
+const EditButton = styled.button`
+  height: 25px;
+  width: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: 10px;
 `;
 
 interface AreaProps {
@@ -102,6 +113,10 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
     });
     setValue("toDo", "");
   };
+  const onClick = () => {
+    console.log("Board Edit Clicked");
+  };
+
   return (
     <Draggable draggableId={boardId} index={index}>
       {(provided, snapshot) => {
@@ -112,6 +127,9 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
             $isDragging={isBoardDragging}
             {...provided.draggableProps}>
             <Title {...provided.dragHandleProps}>{boardName}</Title>
+            <EditButton onClick={onClick}>
+              <span>✏️</span>
+            </EditButton>
             <Form onSubmit={handleSubmit(onValid)}>
               <TodoInput
                 type="text"

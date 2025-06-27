@@ -8,6 +8,8 @@ interface CardProps {
   $isDeleting: boolean;
 }
 
+const Wrapper = styled.div``;
+
 const Card = styled.div<CardProps>`
   background-color: ${(props) =>
     props.$isDragging ? "#74b9ff" : props.theme.cardColor};
@@ -18,6 +20,17 @@ const Card = styled.div<CardProps>`
   margin-bottom: 5px;
   user-select: none;
   opacity: ${(props) => (props.$isDeleting ? 0.8 : 1)};
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const EditButton = styled.button`
+  height: 25px;
+  width: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 interface DraggableCardProps {
@@ -26,19 +39,27 @@ interface DraggableCardProps {
 }
 
 function DraggableCard({ toDo, index }: DraggableCardProps) {
+  const onClick = () => {
+    console.log("Card Edit Clicked");
+  };
   return (
     <Draggable key={toDo.id} draggableId={toDo.id + ""} index={index}>
       {(provided, snapshot) => {
         const isDeleting = snapshot.draggingOver === "TRASH";
         return (
-          <Card
-            $isDragging={snapshot.isDragging}
-            $isDeleting={isDeleting}
-            ref={provided.innerRef}
-            {...provided.dragHandleProps}
-            {...provided.draggableProps}>
-            {toDo.text}
-          </Card>
+          <Wrapper>
+            <Card
+              $isDragging={snapshot.isDragging}
+              $isDeleting={isDeleting}
+              ref={provided.innerRef}
+              {...provided.dragHandleProps}
+              {...provided.draggableProps}>
+              <span>{toDo.text}</span>
+              <EditButton onClick={onClick}>
+                <span>✏️</span>
+              </EditButton>
+            </Card>
+          </Wrapper>
         );
       }}
     </Draggable>
