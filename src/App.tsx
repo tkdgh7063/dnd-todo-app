@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { flushSync } from "react-dom";
@@ -24,7 +25,7 @@ const Header = styled.div`
   align-items: center;
   width: 100%;
   height: 100px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   position: relative;
 `;
 
@@ -62,7 +63,8 @@ const ErrorText = styled.p`
   font-weight: 600;
   height: 20px;
   position: absolute;
-  bottom: 5px;
+  top: 75%;
+  left: 44%;
 `;
 
 const Boards = styled.div`
@@ -210,7 +212,7 @@ function App() {
     if (error) {
       const timer = setTimeout(() => {
         setError("");
-      }, 3 * 1000);
+      }, 100 * 1000);
 
       return () => clearTimeout(timer);
     }
@@ -283,4 +285,4 @@ function App() {
   );
 }
 
-export default App;
+export default React.memo(App);

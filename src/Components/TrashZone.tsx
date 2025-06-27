@@ -1,11 +1,12 @@
-import React, { forwardRef } from "react";
 import { Droppable } from "react-beautiful-dnd";
 import { styled } from "styled-components";
 
 const Wrapper = styled.div`
-  position: relative;
   height: 50px;
   width: 50px;
+  position: absolute;
+  top: 65%;
+  right: 0;
 `;
 
 const Trash = styled.div<TrashZoneProps>`
@@ -23,8 +24,6 @@ const Trash = styled.div<TrashZoneProps>`
     props.$isDraggingOver ? "inset 0 3px 5px rgba(0, 0, 0, 0.5)" : "none"};
   transform: scale(0.9);
   position: absolute;
-  right: 20px;
-  bottom: 0px;
   z-index: ${(props) => props.$zIndex};
 `;
 
