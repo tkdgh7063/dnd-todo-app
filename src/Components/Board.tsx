@@ -148,7 +148,12 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
                   ref={provided.innerRef}
                   {...provided.droppableProps}>
                   {toDos.map((toDo, index) => (
-                    <DraggableCard key={toDo.id} toDo={toDo} index={index} />
+                    <DraggableCard
+                      key={toDo.id}
+                      toDo={toDo}
+                      index={index}
+                      boardId={+boardId}
+                    />
                   ))}
                   {provided.placeholder}
                 </Area>

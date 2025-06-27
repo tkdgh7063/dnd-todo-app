@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
+import { flushSync } from "react-dom";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { styled } from "styled-components";
-import { ToDoItem } from "../atoms";
+import { ToDoItem, toDoState } from "../atoms";
 
 interface CardProps {
   $isDragging: boolean;
@@ -36,12 +38,90 @@ const EditButton = styled.button`
 interface DraggableCardProps {
   toDo: ToDoItem;
   index: number;
+  boardId: number;
 }
 
-function DraggableCard({ toDo, index }: DraggableCardProps) {
+function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [text, setText] = useState<string>(toDo.text);
+  const setToDos = useSetRecoilState(toDoState);
+
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const onClick = () => {
-    console.log("Card Edit Clicked");
+    setIsEditing(true);
   };
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === "") setText(toDo.text);
+    setText(e.target.value);
+  };
+
+  const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsEditing(false);
+    const newValue = e.target.value.trim();
+    if (newValue === "") {
+      setText(toDo.text);
+      return;
+    }
+    setText(newValue);
+
+    setToDos((allBoards) => {
+      const newBoards = [...allBoards];
+      const boardIndex = newBoards.findIndex((board) => board.id === boardId);
+      if (boardIndex === -1) return allBoards;
+
+      const board = newBoards[boardIndex];
+
+      const newItems = [...board.items];
+      const oldItem = newItems[index];
+      const updatedItem = { ...oldItem, text: newValue };
+
+      newItems[index] = updatedItem;
+
+      const updatedBoard = { ...board, items: newItems };
+      newBoards[boardIndex] = updatedBoard;
+
+      return newBoards;
+    });
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      setIsEditing(false);
+
+      const newValue = text.trim();
+      if (newValue === "") {
+        setText(toDo.text);
+        return;
+      }
+      setText(newValue);
+
+      setToDos((allBoards) => {
+        const newBoards = [...allBoards];
+        const boardIndex = newBoards.findIndex((board) => board.id === boardId);
+        if (boardIndex === -1) return allBoards;
+
+        const board = newBoards[boardIndex];
+
+        const newItems = [...board.items];
+        const oldItem = newItems[index];
+        const updatedItem = { ...oldItem, text: newValue };
+
+        newItems[index] = updatedItem;
+
+        const updatedBoard = { ...board, items: newItems };
+        newBoards[boardIndex] = updatedBoard;
+
+        return newBoards;
+      });
+    }
+  };
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
+
   return (
     <Draggable key={toDo.id} draggableId={toDo.id + ""} index={index}>
       {(provided, snapshot) => {
@@ -54,7 +134,18 @@ function DraggableCard({ toDo, index }: DraggableCardProps) {
               ref={provided.innerRef}
               {...provided.dragHandleProps}
               {...provided.draggableProps}>
-              <span>{toDo.text}</span>
+              {isEditing ? (
+                <input
+                  ref={inputRef}
+                  onBlur={onBlur}
+                  onChange={onChange}
+                  onKeyDown={onKeyDown}
+                  type="text"
+                  value={text}
+                />
+              ) : (
+                <span ref={spanRef}>{text}</span>
+              )}
               <EditButton onClick={onClick}>
                 <span>✏️</span>
               </EditButton>
@@ -66,4 +157,4 @@ function DraggableCard({ toDo, index }: DraggableCardProps) {
   );
 }
 
-export default React.memo(DraggableCard);
+export default DraggableCard;
