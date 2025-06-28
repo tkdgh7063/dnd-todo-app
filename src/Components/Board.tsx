@@ -1,6 +1,7 @@
+import React, { useEffect, useRef, useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useForm } from "react-hook-form";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import { styled } from "styled-components";
 import { ToDoItem, toDoState } from "../atoms";
 import DraggableCard from "./DraggableCard";
@@ -14,8 +15,14 @@ const Wrapper = styled.div<WrapperProps>`
   display: flex;
   flex-direction: column;
   //transition: background-color 0.3s ease-in-out;
-  position: relative;
   opacity: ${(props) => (props.$isDeleting ? 0.8 : 1)};
+`;
+
+const Header = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 `;
 
 const Title = styled.h2<TitleProps>`
@@ -24,6 +31,10 @@ const Title = styled.h2<TitleProps>`
   margin-bottom: 10px;
   font-size: 18px;
   user-select: none;
+`;
+
+const BoardInput = styled.input`
+  text-align: center;
 `;
 
 const EditButton = styled.button`
@@ -103,7 +114,7 @@ interface TitleProps {
 }
 
 function Board({ toDos, boardId, boardName, index }: BoardProps) {
-  const setToDos = useSetRecoilState(toDoState);
+  const [allToDos, setToDos] = useRecoilState(toDoState);
   const { register, setValue, handleSubmit } = useForm<FormProps>();
   const onValid = ({ toDo }: FormProps) => {
     const newToDo = { id: Date.now(), text: toDo };
@@ -117,9 +128,97 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
     });
     setValue("toDo", "");
   };
-  const onClick = () => {
-    console.log("Board Edit Clicked");
+
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [text, setText] = useState<string>(boardName);
+  const h2Ref = useRef<HTMLHeadingElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    setIsEditing(false);
+    setText(boardName);
+    return;
+    // set text new value
+    // const newValue = e.target.value.trim();
+    // if (
+    //   newValue === "" ||
+    //   allToDos.some((todo) => todo.boardName === newValue)
+    // ) {
+    //   setText(boardName);
+    //   return;
+    // }
+    // setText(newValue);
+
+    // setToDos((allBoards) => {
+    //   const newBoards = [...allBoards];
+
+    //   const boardIndex = newBoards.findIndex((board) => board.id === +boardId);
+    //   if (boardIndex === -1) return allBoards;
+
+    //   const [targetBoard] = newBoards.splice(boardIndex, 1);
+    //   const newBoard = {
+    //     id: targetBoard.id,
+    //     boardName: text,
+    //     items: targetBoard.items,
+    //   };
+    //   newBoards.splice(boardIndex, 0, newBoard);
+
+    //   return newBoards;
+    // });
   };
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === "") setText(boardName);
+    setText(e.target.value);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      setIsEditing(false);
+      // set text new Value
+      const newValue = text.trim();
+      if (
+        newValue === "" ||
+        allToDos.some((todo) => todo.boardName === newValue)
+      ) {
+        setText(boardName);
+        return;
+      }
+      setText(newValue);
+
+      setToDos((allBoards) => {
+        const newBoards = [...allBoards];
+
+        const boardIndex = newBoards.findIndex(
+          (board) => board.id === +boardId
+        );
+        if (boardIndex === -1) return allBoards;
+
+        const [targetBoard] = newBoards.splice(boardIndex, 1);
+        const newBoard = {
+          id: targetBoard.id,
+          boardName: text,
+          items: targetBoard.items,
+        };
+        newBoards.splice(boardIndex, 0, newBoard);
+
+        return newBoards;
+      });
+    } else if (e.key === "Escape") {
+      setIsEditing(false);
+      setText(boardName);
+    }
+  };
+
+  const onClick = () => {
+    setIsEditing(true);
+  };
+
+  useEffect(() => {
+    if (isEditing) {
+      inputRef.current?.focus();
+    }
+  }, [isEditing]);
 
   return (
     <Draggable draggableId={boardId} index={index}>
@@ -132,12 +231,25 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
             $isDeleting={isDeleting}
             ref={provided.innerRef}
             {...provided.draggableProps}>
-            <Title $isDeleting={isDeleting} {...provided.dragHandleProps}>
-              {boardName}
-            </Title>
-            <EditButton onClick={onClick}>
-              <span>✏️</span>
-            </EditButton>
+            <Header {...provided.dragHandleProps}>
+              {isEditing ? (
+                <BoardInput
+                  ref={inputRef}
+                  onBlur={onBlur}
+                  onChange={onChange}
+                  onKeyDown={onKeyDown}
+                  type="text"
+                  value={text}
+                />
+              ) : (
+                <Title $isDeleting={isDeleting} ref={h2Ref}>
+                  {text}
+                </Title>
+              )}
+              <EditButton onClick={onClick}>
+                <span>✏️</span>
+              </EditButton>
+            </Header>
             <Form onSubmit={handleSubmit(onValid)}>
               <TodoInput
                 type="text"

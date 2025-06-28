@@ -26,6 +26,8 @@ const Card = styled.div<CardProps>`
   align-items: center;
 `;
 
+const CardInput = styled.input``;
+
 const EditButton = styled.button`
   height: 25px;
   width: 25px;
@@ -50,6 +52,7 @@ function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
   const onClick = () => {
     setIsEditing(true);
   };
+
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "") setText(toDo.text);
     setText(e.target.value);
@@ -57,31 +60,36 @@ function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
 
   const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsEditing(false);
-    const newValue = e.target.value.trim();
-    if (newValue === "") {
-      setText(toDo.text);
-      return;
-    }
-    setText(newValue);
+    setText(toDo.text);
+    return;
 
-    setToDos((allBoards) => {
-      const newBoards = [...allBoards];
-      const boardIndex = newBoards.findIndex((board) => board.id === boardId);
-      if (boardIndex === -1) return allBoards;
+    // set todo new text
+    // const newValue = e.target.value.trim();
+    // if (newValue === "") {
+    //   setText(toDo.text);
+    //   return;
+    // }
+    // setText(newValue);
 
-      const board = newBoards[boardIndex];
+    // setToDos((allBoards) => {
+    //   const newBoards = [...allBoards];
 
-      const newItems = [...board.items];
-      const oldItem = newItems[index];
-      const updatedItem = { ...oldItem, text: newValue };
+    //   const boardIndex = newBoards.findIndex((board) => board.id === boardId);
+    //   if (boardIndex === -1) return allBoards;
 
-      newItems[index] = updatedItem;
+    //   const board = newBoards[boardIndex];
 
-      const updatedBoard = { ...board, items: newItems };
-      newBoards[boardIndex] = updatedBoard;
+    //   const newItems = [...board.items];
+    //   const oldItem = newItems[index];
+    //   const updatedItem = { ...oldItem, text: newValue };
 
-      return newBoards;
-    });
+    //   newItems[index] = updatedItem;
+
+    //   const updatedBoard = { ...board, items: newItems };
+    //   newBoards[boardIndex] = updatedBoard;
+
+    //   return newBoards;
+    // });
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -113,6 +121,9 @@ function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
 
         return newBoards;
       });
+    } else if (e.key === "Escape") {
+      setIsEditing(false);
+      setText(toDo.text);
     }
   };
 
@@ -125,9 +136,8 @@ function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
   return (
     <Draggable key={toDo.id} draggableId={toDo.id + ""} index={index}>
       {(provided, snapshot) => {
-        const isDeleting = snapshot.draggingOver?.startsWith("TRASH")
-          ? true
-          : false;
+        const isDeleting = snapshot.draggingOver === "TRASH-CARD";
+
         return (
           <Wrapper>
             <Card
@@ -137,7 +147,7 @@ function DraggableCard({ toDo, index, boardId }: DraggableCardProps) {
               {...provided.dragHandleProps}
               {...provided.draggableProps}>
               {isEditing ? (
-                <input
+                <CardInput
                   ref={inputRef}
                   onBlur={onBlur}
                   onChange={onChange}
