@@ -53,6 +53,8 @@
 - [x] Handle blur as confirm or cancel
 - [x] Validate input: disallow empty or duplicate names
 
+### ♻️ Reset Functionality
+
 - [x] Add a Reset button to restore initial state
   - Originally planned to place it on the **left** of `TrashZone`, but placed it on the **right** for better visual balance
   - Implemented mouse press and release visual styles for interaction feedback
