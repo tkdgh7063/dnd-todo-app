@@ -26,4 +26,5 @@ yarn-error.log*
 .qodo/
 
 # todo memos
+/src/memo.tsx
 /src/.memo.tsx
