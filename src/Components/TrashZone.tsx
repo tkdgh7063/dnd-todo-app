@@ -6,7 +6,7 @@ const Wrapper = styled.div`
   width: 50px;
   position: absolute;
   top: 40%;
-  right: 5%;
+  right: 12%;
 `;
 
 const Trash = styled.div<TrashZoneProps>`

@@ -53,6 +53,10 @@
 - [x] Handle blur as confirm or cancel
 - [x] Validate input: disallow empty or duplicate names
 
+- [x] Add a Reset button to restore initial state
+  - Originally planned to place it on the **left** of `TrashZone`, but placed it on the **right** for better visual balance
+  - Implemented mouse press and release visual styles for interaction feedback
+
 ---
 
 ## 🔜 Upcoming Tasks
@@ -66,8 +70,8 @@
 
 ### ♻️ Additional Features
 
-- [ ] Add a Reset button to restore initial state
-  - Place it to the left of `TrashZone`
+- [x] Add a Reset button to restore initial state
+  - [ ] Show a confirmation alert before resetting to prevent accidental clicks
 - [ ] Ensure boards grow only downward when adding tasks
   - Use `align-items` on board container
 - [ ] Optimize `onDragEnd` handler

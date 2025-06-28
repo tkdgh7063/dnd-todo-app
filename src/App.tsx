@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { flushSync } from "react-dom";
 import { useForm } from "react-hook-form";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useResetRecoilState } from "recoil";
 import styled from "styled-components";
 import { toDoState } from "./atoms";
 import Board from "./Components/Board";
@@ -28,10 +28,6 @@ const Header = styled.div`
   position: relative;
 `;
 
-const Body = styled.div`
-  width: 100%;
-`;
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -39,6 +35,23 @@ const Form = styled.form`
   align-items: center;
   width: 100%;
   height: 70px;
+`;
+
+const Reset = styled.button<ResetProps>`
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  font-size: 30px;
+  position: absolute;
+  top: 40%;
+  right: 7%;
+  background-color: ${(props) =>
+    props.$isPressed ? "#55efc4" : props.theme.boardColor};
+  /* border-style: ${(props) => (props.$isPressed ? "inset" : "outset")}; */
+`;
+
+const Body = styled.div`
+  width: 100%;
 `;
 
 const BoardInput = styled.input<InputProps>`
@@ -87,6 +100,10 @@ interface InputProps {
 interface BoardsProps {
   $isDraggingOver: boolean;
   $isDraggingFromThisWith: boolean;
+}
+
+interface ResetProps {
+  $isPressed: boolean;
 }
 
 function App() {
@@ -189,7 +206,9 @@ function App() {
 
   // const [deletedTaskId, setDeletedTaskId] = useRecoilState(deletedTaskIdState);
   const [toDos, setToDos] = useRecoilState(toDoState);
+  const resetToDos = useResetRecoilState(toDoState);
   const [error, setError] = useState("");
+  const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
   const { register, setValue, handleSubmit } = useForm<FormProps>();
   const onValid = ({ boardName }: FormProps) => {
     setToDos((allBoards) => {
@@ -263,6 +282,14 @@ function App() {
             />
             {error && <ErrorText>{error}</ErrorText>}
           </Form>
+          <Reset
+            onClick={resetToDos}
+            $isPressed={isResetPressed}
+            onMouseUp={() => setIsResetPressed(false)}
+            onMouseDown={() => setIsResetPressed(true)}
+            onMouseLeave={() => setIsResetPressed(false)}>
+            ↻
+          </Reset>
           <TrashZone />
         </Header>
         <Body>
