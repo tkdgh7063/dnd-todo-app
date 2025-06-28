@@ -11,9 +11,10 @@ import TrashZone from "./Components/TrashZone";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  /* height: 100vh; */
   width: 100vw;
   margin: 0 auto;
+  margin-top: 10%;
   justify-content: center;
   align-items: center;
 `;
@@ -82,11 +83,10 @@ const ErrorText = styled.p`
 const Boards = styled.div<BoardsProps>`
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   gap: 15px;
   width: 100%;
   min-height: 300px;
-  background-color: "#3F8CF2";
 `;
 
 interface FormProps {

@@ -59,6 +59,11 @@
   - Originally planned to place it on the **left** of `TrashZone`, but placed it on the **right** for better visual balance
   - Implemented mouse press and release visual styles for interaction feedback
 
+### 🛠️ Layout Improvements
+
+- [x] Ensure boards grow only downward when adding tasks
+  - Use `align-items` on board container
+
 ---
 
 ## 🔜 Upcoming Tasks
@@ -74,14 +79,9 @@
 
 - [x] Add a Reset button to restore initial state
   - [ ] Show a confirmation alert before resetting to prevent accidental clicks
-- [ ] Ensure boards grow only downward when adding tasks
-  - Use `align-items` on board container
 - [ ] Optimize `onDragEnd` handler
   - Update only the modified board, not all boards
 - [ ] Add toggle for task insertion position (top vs bottom)
-- [ ] Improve layout so that board grows downward with fixed top
-  - Use `align-items: flex-start` or alternative layout strategy
-  - Reposition `TrashZone` to stay fixed
 - [ ] Add dark mode toggle
 - [ ] (Optional) Improve drag-and-drop animation
   - Smoother drag for boards
