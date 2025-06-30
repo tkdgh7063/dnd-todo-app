@@ -38,6 +38,9 @@ const Form = styled.form`
   input {
     width: 100%;
   }
+  &::placeholder {
+    -webkit-user-select: none;
+  }
 `;
 
 const ButtonContainer = styled.div`
