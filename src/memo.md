@@ -64,6 +64,11 @@
 - [x] Ensure boards grow only downward when adding tasks
   - Use `align-items` on board container
 
+## ✅ 06.30 - Additional Features
+
+- [x] Add toggle for task insertion position (top vs bottom)
+  - Implemented a toggle that lets users choose whether new tasks are added to the top or bottom of the board
+
 ---
 
 ## 🔜 Upcoming Tasks
@@ -81,7 +86,6 @@
   - [ ] Show a confirmation alert before resetting to prevent accidental clicks
 - [ ] Optimize `onDragEnd` handler
   - Update only the modified board, not all boards
-- [ ] Add toggle for task insertion position (top vs bottom)
 - [ ] Add dark mode toggle
 - [ ] (Optional) Improve drag-and-drop animation
   - Smoother drag for boards

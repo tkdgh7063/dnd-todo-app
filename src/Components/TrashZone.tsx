@@ -4,9 +4,6 @@ import { styled } from "styled-components";
 const Wrapper = styled.div`
   height: 50px;
   width: 50px;
-  position: absolute;
-  top: 40%;
-  right: 12%;
 `;
 
 const Trash = styled.div<TrashZoneProps>`
@@ -25,6 +22,9 @@ const Trash = styled.div<TrashZoneProps>`
   transform: scale(0.9);
   position: absolute;
   z-index: ${(props) => props.$zIndex};
+  span {
+    -webkit-user-select: none;
+  }
 `;
 
 interface TrashZoneProps {

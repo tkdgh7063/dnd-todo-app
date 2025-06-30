@@ -4,7 +4,7 @@ import { flushSync } from "react-dom";
 import { useForm } from "react-hook-form";
 import { useRecoilState, useResetRecoilState } from "recoil";
 import styled from "styled-components";
-import { toDoState } from "./atoms";
+import { isAddToTopState, toDoState } from "./atoms";
 import Board from "./Components/Board";
 import TrashZone from "./Components/TrashZone";
 
@@ -30,12 +30,60 @@ const Header = styled.div`
 `;
 
 const Form = styled.form`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 15%;
+  input {
+    width: 100%;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 250px;
+  margin-left: auto;
+  margin-right: 15%;
+`;
+
+const ToggleContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 70px;
+  width: 100px;
+`;
+
+const ToggleLabel = styled.span`
+  font-size: 14px;
+  -webkit-user-select: none;
+  span {
+    font-weight: 800;
+  }
+  margin: 3px 0;
+`;
+
+const SliderContainer = styled.div`
+  position: relative;
+  height: 60px;
+  width: 30px;
+  background-color: #ddd;
+  border-radius: 15px;
+  cursor: pointer;
+`;
+
+const Slider = styled.div<ToggleProps>`
+  height: 28px;
+  width: 28px;
+  position: absolute;
+  background-color: #4caf50;
+  border-radius: 50%;
+  left: 1px;
+  top: ${(props) => (props.$isTop ? "1px" : "31px")};
+  transition: top 0.3s;
+  -webkit-user-select: none;
 `;
 
 const Reset = styled.button<ResetProps>`
@@ -43,12 +91,12 @@ const Reset = styled.button<ResetProps>`
   width: 50px;
   border-radius: 50%;
   font-size: 30px;
-  position: absolute;
-  top: 40%;
-  right: 7%;
   background-color: ${(props) =>
     props.$isPressed ? "#55efc4" : props.theme.boardColor};
   /* border-style: ${(props) => (props.$isPressed ? "inset" : "outset")}; */
+  span {
+    -webkit-user-select: none;
+  }
 `;
 
 const Body = styled.div`
@@ -61,10 +109,6 @@ const BoardInput = styled.input<InputProps>`
   border-radius: 5px;
   border: none;
   text-align: center;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   &:focus {
     outline: none;
     border: 2px solid #74b9ff;
@@ -104,6 +148,10 @@ interface BoardsProps {
 
 interface ResetProps {
   $isPressed: boolean;
+}
+
+interface ToggleProps {
+  $isTop: boolean;
 }
 
 function App() {
@@ -207,7 +255,9 @@ function App() {
   // const [deletedTaskId, setDeletedTaskId] = useRecoilState(deletedTaskIdState);
   const [toDos, setToDos] = useRecoilState(toDoState);
   const resetToDos = useResetRecoilState(toDoState);
+  const resetIsTop = useResetRecoilState(isAddToTopState);
   const [error, setError] = useState("");
+  const [isTop, setIsTop] = useRecoilState(isAddToTopState);
   const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
   const { register, setValue, handleSubmit } = useForm<FormProps>();
   const onValid = ({ boardName }: FormProps) => {
@@ -231,6 +281,16 @@ function App() {
       return [...allBoards, newBoard];
     });
     setValue("boardName", "");
+  };
+
+  const onToggle = () => {
+    setIsTop((prev) => !prev);
+  };
+
+  const onReset = () => {
+    resetToDos();
+    resetIsTop();
+    return;
   };
 
   useEffect(() => {
@@ -282,15 +342,28 @@ function App() {
             />
             {error && <ErrorText>{error}</ErrorText>}
           </Form>
-          <Reset
-            onClick={resetToDos}
-            $isPressed={isResetPressed}
-            onMouseUp={() => setIsResetPressed(false)}
-            onMouseDown={() => setIsResetPressed(true)}
-            onMouseLeave={() => setIsResetPressed(false)}>
-            ↻
-          </Reset>
-          <TrashZone />
+          <ButtonContainer>
+            <ToggleContainer>
+              <ToggleLabel>
+                Add to <span>Top</span>
+              </ToggleLabel>
+              <SliderContainer onClick={onToggle}>
+                <Slider $isTop={isTop} />
+              </SliderContainer>
+              <ToggleLabel>
+                Add to <span>Bottom</span>
+              </ToggleLabel>
+            </ToggleContainer>
+            <Reset
+              onClick={onReset}
+              $isPressed={isResetPressed}
+              onMouseUp={() => setIsResetPressed(false)}
+              onMouseDown={() => setIsResetPressed(true)}
+              onMouseLeave={() => setIsResetPressed(false)}>
+              <span>↻</span>
+            </Reset>
+            <TrashZone />
+          </ButtonContainer>
         </Header>
         <Body>
           <Droppable

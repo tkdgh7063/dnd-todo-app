@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
 import { useForm } from "react-hook-form";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { styled } from "styled-components";
-import { ToDoItem, toDoState } from "../atoms";
+import { isAddToTopState, ToDoItem, toDoState } from "../atoms";
 import DraggableCard from "./DraggableCard";
 
 const Wrapper = styled.div<WrapperProps>`
@@ -30,7 +30,7 @@ const Title = styled.h2<TitleProps>`
   font-weight: 600;
   margin-bottom: 10px;
   font-size: 18px;
-  user-select: none;
+  -webkit-user-select: none; // user-select
 `;
 
 const BoardInput = styled.input`
@@ -89,7 +89,7 @@ const TodoInput = styled.input`
     margin-bottom: 2px;
   }
   &::placeholder {
-    user-select: none;
+    -webkit-user-select: none; // user-select
   }
 `;
 
@@ -120,9 +120,12 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
     const newToDo = { id: Date.now(), text: toDo };
     setToDos((allBoards) => {
       const newBoards = [...allBoards];
+      const newItems = isTop
+        ? [newToDo, ...newBoards[index].items]
+        : [...newBoards[index].items, newToDo];
       newBoards[index] = {
         ...newBoards[index],
-        items: [...newBoards[index].items, newToDo],
+        items: newItems,
       };
       return newBoards;
     });
@@ -131,40 +134,14 @@ function Board({ toDos, boardId, boardName, index }: BoardProps) {
 
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [text, setText] = useState<string>(boardName);
+  const isTop = useRecoilValue(isAddToTopState);
   const h2Ref = useRef<HTMLHeadingElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+  const onBlur = (_e: React.FocusEvent<HTMLInputElement>) => {
     setIsEditing(false);
     setText(boardName);
     return;
-    // set text new value
-    // const newValue = e.target.value.trim();
-    // if (
-    //   newValue === "" ||
-    //   allToDos.some((todo) => todo.boardName === newValue)
-    // ) {
-    //   setText(boardName);
-    //   return;
-    // }
-    // setText(newValue);
-
-    // setToDos((allBoards) => {
-    //   const newBoards = [...allBoards];
-
-    //   const boardIndex = newBoards.findIndex((board) => board.id === +boardId);
-    //   if (boardIndex === -1) return allBoards;
-
-    //   const [targetBoard] = newBoards.splice(boardIndex, 1);
-    //   const newBoard = {
-    //     id: targetBoard.id,
-    //     boardName: text,
-    //     items: targetBoard.items,
-    //   };
-    //   newBoards.splice(boardIndex, 0, newBoard);
-
-    //   return newBoards;
-    // });
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {

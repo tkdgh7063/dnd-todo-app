@@ -46,3 +46,9 @@ export const deletedTaskIdState = atom<number | null>({
   key: "deletedTaskId",
   default: null,
 });
+
+export const isAddToTopState = atom<boolean>({
+  key: "isAddToTop",
+  default: false,
+  effects: [persistAtom],
+});
