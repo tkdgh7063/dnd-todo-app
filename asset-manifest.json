@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/dnd-todo-app/static/js/main.da75adce.js",
+    "main.js": "/dnd-todo-app/static/js/main.b5085414.js",
     "index.html": "/dnd-todo-app/index.html",
-    "main.da75adce.js.map": "/dnd-todo-app/static/js/main.da75adce.js.map"
+    "main.b5085414.js.map": "/dnd-todo-app/static/js/main.b5085414.js.map"
   },
   "entrypoints": [
-    "static/js/main.da75adce.js"
+    "static/js/main.b5085414.js"
   ]
 }
