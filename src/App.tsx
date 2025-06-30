@@ -24,7 +24,7 @@ const Header = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 100px;
+  height: 110px;
   margin-bottom: 10px;
   position: relative;
 `;
