@@ -102,8 +102,37 @@ const Reset = styled.button<ResetProps>`
   }
 `;
 
+const ResetModal = styled.div`
+  height: 90px;
+  width: 220px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  background-color: rgba(90, 178, 255, 0.95);
+  color: #0a1f33;
+  -webkit-user-select: none;
+  p {
+    margin-bottom: 10px;
+  }
+  div {
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    button {
+      border-radius: 5px;
+    }
+  }
+`;
+
 const Body = styled.div`
   width: 100%;
+  position: relative;
 `;
 
 const BoardInput = styled.input<InputProps>`
@@ -262,6 +291,7 @@ function App() {
   const [error, setError] = useState("");
   const [isTop, setIsTop] = useRecoilState(isAddToTopState);
   const [isResetPressed, setIsResetPressed] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
   const { register, setValue, handleSubmit } = useForm<FormProps>();
   const onValid = ({ boardName }: FormProps) => {
     setToDos((allBoards) => {
@@ -291,9 +321,17 @@ function App() {
   };
 
   const onReset = () => {
+    setShowModal(true);
+  };
+
+  const handleConfirm = () => {
     resetToDos();
     resetIsTop();
-    return;
+    setShowModal(false);
+  };
+
+  const handleCancel = () => {
+    setShowModal(false);
   };
 
   useEffect(() => {
@@ -392,6 +430,15 @@ function App() {
               </Boards>
             )}
           </Droppable>
+          {showModal && (
+            <ResetModal>
+              <p>Reset Everything?</p>
+              <div>
+                <button onClick={handleConfirm}>Reset</button>
+                <button onClick={handleCancel}>Cancel</button>
+              </div>
+            </ResetModal>
+          )}
         </Body>
       </Wrapper>
     </DragDropContext>

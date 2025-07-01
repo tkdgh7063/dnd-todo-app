@@ -69,6 +69,11 @@
 - [x] Add toggle for task insertion position (top vs bottom)
   - Implemented a toggle that lets users choose whether new tasks are added to the top or bottom of the board
 
+## ✅ 07.01 - Reset Function Improvements
+
+- [x] Add a Reset button to restore initial state
+  - [x] Show a confirmation alert before resetting to prevent accidental clicks
+
 ---
 
 ## 🔜 Upcoming Tasks
@@ -82,8 +87,6 @@
 
 ### ♻️ Additional Features
 
-- [x] Add a Reset button to restore initial state
-  - [ ] Show a confirmation alert before resetting to prevent accidental clicks
 - [ ] Optimize `onDragEnd` handler
   - Update only the modified board, not all boards
 - [ ] Add dark mode toggle
